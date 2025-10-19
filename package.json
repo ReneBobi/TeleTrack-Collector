@@ -1,0 +1,32 @@
+{
+  "name": "teletrack-collector",
+  "version": "1.0.0",
+  "description": "TeleTrack AMI Data Collector - Lightweight service for collecting Asterisk call data",
+  "main": "collector.js",
+  "scripts": {
+    "start": "node collector.js",
+    "install-service": "node install-service.js",
+    "uninstall-service": "node uninstall-service.js",
+    "build": "pkg collector.js --target node18-win-x64 --output teletrack-collector.exe",
+    "start:local": "node collector.js --config config.local.json",
+    "mock-api": "node mock-api-server.js",
+    "test:local": "concurrently \"npm run mock-api\" \"sleep 3 && npm run start:local\""
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "node-windows": "^1.0.0-beta.8"
+  },
+  "devDependencies": {
+    "express": "^5.1.0",
+    "pkg": "^5.8.1"
+  },
+  "author": "TeleTrack",
+  "license": "MIT",
+  "keywords": [
+    "asterisk",
+    "ami",
+    "call-tracking",
+    "telephony",
+    "collector"
+  ]
+}

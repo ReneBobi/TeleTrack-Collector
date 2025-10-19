@@ -1,0 +1,32 @@
+{
+  "organization": {
+    "id": "0531ee6d-630b-4639-b606-c8cb70641363",
+    "name": "Gigaset",
+    "apiKey": "0992ce42-fff3-4d45-a12a-793477ce88f5"
+  },
+  "ami": {
+    "host": "172.28.70.55",
+    "port": 7777,
+    "username": "renescti",
+    "password": "A3dj3!ewfe"
+  },
+  "cloud": {
+    "endpoint": "https://tele-track.vercel.app/api/calls/ingest",
+    "timeout": 30000,
+    "retryAttempts": 3,
+    "retryDelay": 5000,
+    "healthCheckEnabled": false
+  },
+  "collector": {
+    "name": "main-collector",
+    "heartbeatInterval": 60000,
+    "batchSize": 10,
+    "batchTimeout": 5000
+  },
+  "logging": {
+    "level": "debug",
+    "file": "collector.log",
+    "maxSize": "10MB",
+    "maxFiles": 5
+  }
+}
