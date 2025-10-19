@@ -1,0 +1,32 @@
+<service>
+	<id>teletrackcollector.exe</id>
+	<name>TeleTrack Collector</name>
+	<description>TeleTrack AMI Data Collector Service - Collects call data from Asterisk and sends to TeleTrack cloud platform</description>
+	<executable>C:\Program Files\nodejs\node.exe</executable>
+	<argument>--max_old_space_size=4096</argument>
+	<argument>C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>C:\Users\ctitest\Documents\TeleTrack Collector\collector.js</argument>
+	<argument>--scriptoptions=</argument>
+	<argument>--log</argument>
+	<argument>TeleTrack Collector wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<logmode>rotate</logmode>
+	<stoptimeout>30sec</stoptimeout>
+	<env name="NODE_ENV" value="production"/>
+	<serviceaccount>
+		<domain>PSE-5080</domain>
+		<user>LocalSystem</user>
+		<password></password>
+	</serviceaccount>
+	<workingdirectory>C:\Users\ctitest\Documents\TeleTrack Collector</workingdirectory>
+</service>
