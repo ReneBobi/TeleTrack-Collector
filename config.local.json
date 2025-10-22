@@ -26,7 +26,10 @@
   "logging": {
     "level": "info",
     "file": "collector.log",
-    "maxSize": "10MB",
-    "maxFiles": 5
+    "maxSize": "10MB"
+  },
+  "database": {
+    "type": "sqlite",
+    "path": "./teletrack.db"
   }
 }

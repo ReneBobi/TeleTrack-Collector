@@ -26,7 +26,20 @@
   "logging": {
     "level": "debug",
     "file": "collector.log",
-    "maxSize": "10MB",
-    "maxFiles": 5
+    "maxSize": "10MB"
+  },
+  "database": {
+    "type": "postgresql",
+    "host": "localhost",
+    "port": 5432,
+    "database": "postgres",
+    "username": "teletrack_admin",
+    "password": "Solatar03$",
+    "ssl": false,
+    "connectTimeout": 10,
+    "pool": {
+      "min": 2,
+      "max": 10
+    }
   }
 }

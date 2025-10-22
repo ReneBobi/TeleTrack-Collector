@@ -45,41 +45,41 @@ app.get('/api/health', (req, res) => {
 app.post('/api/calls/ingest', (req, res) => {
   try {
     const timestamp = new Date().toISOString();
-    const callData = req.body;
+    const payload = req.body;
     
-    console.log(`[${timestamp}] Received call data:`, JSON.stringify(callData, null, 2));
+    console.log(`[${timestamp}] Received call data from collector: ${payload.collectorInfo?.name || 'Unknown'}`);
     
-    // Validate required fields
-    if (!callData.organizationId) {
-      return res.status(400).json({
-        error: 'Missing organizationId',
-        message: 'organizationId is required'
-      });
-    }
+    // Extract data from payload structure
+    const callData = payload.callData || {};
+    const collectorInfo = payload.collectorInfo || {};
     
     // Store call data to file for persistence
     const dataFile = 'received-calls.json';
     let calls = [];
     
     if (fs.existsSync(dataFile)) {
-      const existingData = fs.readFileSync(dataFile, 'utf8');
-      calls = JSON.parse(existingData);
+      try {
+        const existingData = fs.readFileSync(dataFile, 'utf8');
+        calls = JSON.parse(existingData);
+      } catch (e) {
+        console.warn('Failed to read existing calls, starting fresh');
+        calls = [];
+      }
     }
     
     const record = {
       id: Date.now().toString(),
       timestamp: timestamp,
-      organizationId: callData.organizationId,
-      collectorName: callData.collectorName,
-      call: callData.call,
-      metadata: callData.metadata,
+      uniqueId: callData.uniqueId,
+      callData: callData,
+      collectorInfo: collectorInfo,
       receivedAt: timestamp
     };
     
     calls.push(record);
     fs.writeFileSync(dataFile, JSON.stringify(calls, null, 2));
     
-    console.log(`✅ Stored call data with ID: ${record.id}`);
+    console.log(`✅ Stored call: ${callData.source || '?'} → ${callData.destination || '?'} (${callData.status || '?'})`);
     
     res.status(201).json({
       success: true,
@@ -93,7 +93,8 @@ app.post('/api/calls/ingest', (req, res) => {
     console.error('Error processing call data:', error);
     res.status(500).json({
       error: 'Internal server error',
-      message: error.message
+      message: error.message,
+      details: error.stack
     });
   }
 });

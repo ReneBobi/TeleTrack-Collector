@@ -4,6 +4,9 @@ const net = require("net");
 const fs = require("fs");
 const axios = require("axios");
 const os = require("os");
+const path = require("path");
+const { Pool } = require("pg");
+const Database = require("better-sqlite3");
 
 /* --- helper: lokalni ISO z offsetom, npr. 2025-10-19T20:41:25+02:00 --- */
 function toLocalISOString(d = new Date()) {
@@ -39,6 +42,15 @@ class TeleTrackCollector {
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 10;
 
+    // Database connection
+    this.db = null;
+    this.dbPool = null;
+
+    // Initialize logging
+    this.logFile = null;
+    this.logStream = null;
+    this.initLogging();
+
     this.handleData = this.handleData.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleError = this.handleError.bind(this);
@@ -69,17 +81,213 @@ class TeleTrackCollector {
     }
   }
 
-  // ========== LOG ==========
+  // ========== LOGGING ==========
+  initLogging() {
+    const logConfig = this.config.logging || {};
+    this.logFile = logConfig.file || "collector.log";
+    this.maxLogSize = this.parseLogSize(logConfig.maxSize || "10MB");
+    this.maxLogFiles = logConfig.maxFiles || 5;
+    
+    // Ensure log directory exists
+    const logDir = path.dirname(this.logFile);
+    if (logDir && !fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    
+    this.openLogStream();
+  }
+
+  parseLogSize(sizeStr) {
+    const match = sizeStr.match(/^(\d+)(MB|KB|GB)?$/i);
+    if (!match) return 10 * 1024 * 1024; // Default 10MB
+    
+    const size = parseInt(match[1]);
+    const unit = (match[2] || 'MB').toUpperCase();
+    
+    switch (unit) {
+      case 'KB': return size * 1024;
+      case 'MB': return size * 1024 * 1024;
+      case 'GB': return size * 1024 * 1024 * 1024;
+      default: return size * 1024 * 1024;
+    }
+  }
+
+  openLogStream() {
+    if (this.logStream) {
+      this.logStream.end();
+    }
+    
+    this.logStream = fs.createWriteStream(this.logFile, { flags: 'a' });
+    this.logStream.on('error', (err) => {
+      console.error('Log stream error:', err);
+    });
+  }
+
+  rotateLogIfNeeded() {
+    if (!fs.existsSync(this.logFile)) return;
+    
+    const stats = fs.statSync(this.logFile);
+    if (stats.size >= this.maxLogSize) {
+      this.logStream.end();
+      
+      // Simply truncate the log file instead of rotating
+      fs.writeFileSync(this.logFile, '');
+      
+      // Open new stream
+      this.openLogStream();
+      
+      this.log("info", "Log file truncated due to size limit");
+    }
+  }
+
   log(level, message) {
     const ts = new Date().toISOString();
     const levels = ["error", "warn", "info", "debug"];
     const current = this.config?.logging?.level || "info";
     if (levels.indexOf(level) > levels.indexOf(current)) return;
-    console.log(`[${ts}] [${level.toUpperCase()}] ${message}`);
+    
+    const logMessage = `[${ts}] [${level.toUpperCase()}] ${message}\n`;
+    
+    // Write to file if stream is available
+    if (this.logStream && !this.logStream.destroyed) {
+      this.logStream.write(logMessage);
+      this.rotateLogIfNeeded();
+    } else {
+      // Fallback to console if file logging fails
+      console.log(logMessage.trim());
+    }
+  }
+
+  // ========== DATABASE ==========
+  async initDatabase() {
+    const dbConfig = this.config.database;
+    if (!dbConfig) {
+      this.log("warn", "No database configuration found, skipping database connection");
+      return;
+    }
+
+    try {
+      if (dbConfig.type === "postgresql") {
+        this.dbPool = new Pool({
+          host: dbConfig.host,
+          port: dbConfig.port,
+          database: dbConfig.database,
+          user: dbConfig.username,
+          password: dbConfig.password,
+          ssl: dbConfig.ssl,
+          connectionTimeoutMillis: dbConfig.connectTimeout * 1000 || 10000,
+          max: dbConfig.pool?.max || 10,
+          min: dbConfig.pool?.min || 2,
+        });
+
+        // Test connection
+        const client = await this.dbPool.connect();
+        await client.query('SELECT NOW()');
+        client.release();
+        
+        this.log("info", `✅ Connected to PostgreSQL database: ${dbConfig.database}`);
+      } else if (dbConfig.type === "sqlite") {
+        this.db = new Database(dbConfig.path);
+        this.log("info", `✅ Connected to SQLite database: ${dbConfig.path}`);
+      }
+    } catch (error) {
+      this.log("error", `Database connection failed: ${error.message}`);
+      // Don't exit, continue without database
+    }
+  }
+
+  async saveCallToDatabase(callData) {
+    if (!this.dbPool && !this.db) return;
+
+    try {
+      if (this.dbPool) {
+        // PostgreSQL
+        await this.saveCallToPostgreSQL(callData);
+      } else if (this.db) {
+        // SQLite
+        this.saveCallToSQLite(callData);
+      }
+    } catch (error) {
+      this.log("error", `Failed to save call to database: ${error.message}`);
+    }
+  }
+
+  async saveCallToPostgreSQL(callData) {
+    const query = `
+      INSERT INTO call_history (
+        unique_id, organization_id, collector_id, timestamp, status, source, destination,
+        caller_name, direction, call_type, source_raw, dest_raw, duration, billable_seconds,
+        disposition, last_app, context, destination_context, last_data, phone_number, raw_event
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+    `;
+
+    const values = [
+      callData.uniqueId,
+      this.config.organization.id,
+      null, // collector_id - could be added later
+      callData.timestamp,
+      callData.status,
+      callData.source,
+      callData.destination,
+      callData.callerName,
+      callData.direction,
+      callData.callType,
+      callData.source_raw,
+      callData.dest_raw,
+      callData.duration || 0,
+      callData.billableSeconds || 0,
+      callData.disposition,
+      callData.lastApp,
+      callData.context,
+      callData.destinationContext,
+      callData.lastData,
+      callData.phoneNumber,
+      JSON.stringify(callData.rawEvent)
+    ];
+
+    await this.dbPool.query(query, values);
+    this.log("debug", `Saved call to PostgreSQL: ${callData.uniqueId}`);
+  }
+
+  saveCallToSQLite(callData) {
+    const stmt = this.db.prepare(`
+      INSERT INTO call_history (
+        uniqueId, organizationId, collectorId, timestamp, status, source, destination,
+        callerName, direction, callType, sourceRaw, destRaw, duration, billableSeconds,
+        disposition, lastApp, context, destinationContext, lastData, phoneNumber, rawEvent
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      callData.uniqueId,
+      this.config.organization.id,
+      null, // collectorId
+      callData.timestamp,
+      callData.status,
+      callData.source,
+      callData.destination,
+      callData.callerName,
+      callData.direction,
+      callData.callType,
+      callData.source_raw,
+      callData.dest_raw,
+      callData.duration || 0,
+      callData.billableSeconds || 0,
+      callData.disposition,
+      callData.lastApp,
+      callData.context,
+      callData.destinationContext,
+      callData.lastData,
+      callData.phoneNumber,
+      JSON.stringify(callData.rawEvent)
+    );
+    
+    this.log("debug", `Saved call to SQLite: ${callData.uniqueId}`);
   }
 
   // ========== STARTUP ==========
   async start() {
+    await this.initDatabase();
     this.connectAMI();
     this.startHeartbeat();
     this.startStaleFlusher();
@@ -294,6 +502,14 @@ class TeleTrackCollector {
   // ========== EVENT HANDLER ==========
   handleAMIEvent(ev) {
     this.log("debug", `AMI Event: ${ev.Event} ${JSON.stringify(ev)}`);
+    
+    // Only process call-related events
+    const callEvents = ['Newchannel', 'Hangup', 'Bridge', 'Dial', 'DialEnd', 'Cdr'];
+    if (!callEvents.includes(ev.Event)) {
+      this.log("debug", `Skipping non-call event: ${ev.Event}`);
+      return;
+    }
+    
     const clean = TeleTrackCollector.cleanEndpoint;
 
     // Feed memory by event type
@@ -363,7 +579,7 @@ class TeleTrackCollector {
 
     const callData = {
       uniqueId: ev.Uniqueid || ev.UniqueID,
-      linkedId: ev.Linkedid || ev.LinkedID || ev.Uniqueid || ev.UniqueID,
+      // linkedId: ev.Linkedid || ev.LinkedID || ev.Uniqueid || ev.UniqueID, // Commented out for database compatibility
 
       // čas iz eventa (UTC) – a končno poravnamo pri emit-u
       timestamp, // ISO UTC (za kompatibilnost)
@@ -372,8 +588,8 @@ class TeleTrackCollector {
 
       source: caller,
       destination: callee,
-      caller,
-      callee,
+      // caller, // Commented out for database compatibility
+      // callee, // Commented out for database compatibility
       callerName: ev.CallerIDName || null,
       direction,
       callType: direction,
@@ -510,7 +726,11 @@ class TeleTrackCollector {
   // ========== BATCH SEND ==========
   queueCallData(callData) {
     this.callQueue.push(callData);
-    this.log("info", `Queued primary: lid=${callData.linkedId} (${callData.status})`);
+    this.log("info", `Queued primary: uid=${callData.uniqueId} (${callData.status})`);
+    
+    // Save to database immediately
+    this.saveCallToDatabase(callData);
+    
     const size = this.config.collector.batchSize;
     const timeout = this.config.collector.batchTimeout;
     if (this.callQueue.length >= size) this.processBatch();
@@ -554,7 +774,7 @@ class TeleTrackCollector {
       timeout: this.config.cloud.timeout || 30000,
     });
     this.log("debug",
-      `Sent primary: lid=${callData.linkedId}, src=${callData.source}, dst=${callData.destination}, status=${callData.status}, billsec=${callData.billableSeconds}`
+      `Sent primary: uid=${callData.uniqueId}, src=${callData.source}, dst=${callData.destination}, status=${callData.status}, billsec=${callData.billableSeconds}`
     );
   }
 
@@ -618,6 +838,22 @@ class TeleTrackCollector {
     if (this.callQueue.length) this.processBatch();
 
     if (this.socket) this.socket.end();
+    
+    // Close database connections
+    if (this.dbPool) {
+      await this.dbPool.end();
+      this.log("info", "PostgreSQL connection pool closed");
+    }
+    if (this.db) {
+      this.db.close();
+      this.log("info", "SQLite database connection closed");
+    }
+    
+    // Close log stream gracefully
+    if (this.logStream && !this.logStream.destroyed) {
+      this.logStream.end();
+    }
+    
     process.exit(0);
   }
 }

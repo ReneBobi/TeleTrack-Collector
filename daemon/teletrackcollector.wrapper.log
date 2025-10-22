@@ -478,3 +478,101 @@ Stacktrace:   at System.Runtime.InteropServices.Marshal.ThrowExceptionForHRInter
 2025-10-19 21:09:07 - Finished teletrackcollector.exe
 2025-10-19 21:09:08 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
 2025-10-19 21:09:08 - Started 18300
+2025-10-20 10:50:46 - Stopping teletrackcollector.exe
+2025-10-20 10:50:46 - ProcessKill 18300
+2025-10-20 10:50:46 - Found child process: 12216 Name: conhost.exe
+2025-10-20 10:50:46 - Found child process: 17436 Name: node.exe
+2025-10-20 10:50:47 - Stopping process 12216
+2025-10-20 10:50:47 - Send SIGINT 12216
+2025-10-20 10:50:47 - SIGINT to 12216 failed - Killing as fallback
+2025-10-20 10:50:47 - Stopping process 17436
+2025-10-20 10:50:47 - Send SIGINT 17436
+2025-10-20 10:50:47 - SIGINT to 17436 failed - Killing as fallback
+2025-10-20 10:50:47 - Stopping process 18300
+2025-10-20 10:50:47 - Send SIGINT 18300
+2025-10-20 10:50:47 - SIGINT to 18300 failed - Killing as fallback
+2025-10-20 10:50:47 - Finished teletrackcollector.exe
+2025-10-20 10:50:48 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-20 10:50:48 - Started 19576
+2025-10-21 11:50:15 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-21 11:50:15 - Started 5868
+2025-10-22 11:20:36 - Stopping teletrackcollector.exe
+2025-10-22 11:20:36 - ProcessKill 5868
+2025-10-22 11:20:36 - Found child process: 5892 Name: conhost.exe
+2025-10-22 11:20:36 - Found child process: 6160 Name: node.exe
+2025-10-22 11:20:36 - Stopping process 5892
+2025-10-22 11:20:36 - Send SIGINT 5892
+2025-10-22 11:20:36 - SIGINT to 5892 failed - Killing as fallback
+2025-10-22 11:20:36 - Stopping process 6160
+2025-10-22 11:20:36 - Send SIGINT 6160
+2025-10-22 11:20:36 - SIGINT to 6160 failed - Killing as fallback
+2025-10-22 11:20:36 - Stopping process 5868
+2025-10-22 11:20:36 - Send SIGINT 5868
+2025-10-22 11:20:36 - SIGINT to 5868 failed - Killing as fallback
+2025-10-22 11:20:36 - Finished teletrackcollector.exe
+2025-10-22 11:20:38 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-22 11:20:38 - Started 8684
+2025-10-22 11:24:14 - Stopping teletrackcollector.exe
+2025-10-22 11:24:14 - ProcessKill 8684
+2025-10-22 11:24:14 - Found child process: 11216 Name: conhost.exe
+2025-10-22 11:24:14 - Found child process: 11504 Name: node.exe
+2025-10-22 11:24:14 - Stopping process 11216
+2025-10-22 11:24:14 - Send SIGINT 11216
+2025-10-22 11:24:14 - SIGINT to 11216 failed - Killing as fallback
+2025-10-22 11:24:14 - Stopping process 11504
+2025-10-22 11:24:14 - Send SIGINT 11504
+2025-10-22 11:24:14 - SIGINT to 11504 failed - Killing as fallback
+2025-10-22 11:24:14 - Stopping process 8684
+2025-10-22 11:24:14 - Send SIGINT 8684
+2025-10-22 11:24:14 - SIGINT to 8684 failed - Killing as fallback
+2025-10-22 11:24:14 - Finished teletrackcollector.exe
+2025-10-22 11:24:16 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-22 11:24:16 - Started 14776
+2025-10-22 11:53:18 - Stopping teletrackcollector.exe
+2025-10-22 11:53:18 - ProcessKill 14776
+2025-10-22 11:53:18 - Found child process: 14960 Name: conhost.exe
+2025-10-22 11:53:18 - Found child process: 4228 Name: node.exe
+2025-10-22 11:53:18 - Stopping process 14960
+2025-10-22 11:53:18 - Send SIGINT 14960
+2025-10-22 11:53:18 - SIGINT to 14960 failed - Killing as fallback
+2025-10-22 11:53:18 - Stopping process 4228
+2025-10-22 11:53:18 - Send SIGINT 4228
+2025-10-22 11:53:18 - SIGINT to 4228 failed - Killing as fallback
+2025-10-22 11:53:18 - Stopping process 14776
+2025-10-22 11:53:18 - Send SIGINT 14776
+2025-10-22 11:53:18 - SIGINT to 14776 failed - Killing as fallback
+2025-10-22 11:53:18 - Finished teletrackcollector.exe
+2025-10-22 11:53:20 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-22 11:53:20 - Started 15676
+2025-10-22 12:56:14 - Stopping teletrackcollector.exe
+2025-10-22 12:56:14 - ProcessKill 15676
+2025-10-22 12:56:14 - Found child process: 15696 Name: conhost.exe
+2025-10-22 12:56:14 - Found child process: 14576 Name: node.exe
+2025-10-22 12:56:14 - Stopping process 15696
+2025-10-22 12:56:14 - Send SIGINT 15696
+2025-10-22 12:56:14 - SIGINT to 15696 failed - Killing as fallback
+2025-10-22 12:56:14 - Stopping process 14576
+2025-10-22 12:56:14 - Send SIGINT 14576
+2025-10-22 12:56:14 - SIGINT to 14576 failed - Killing as fallback
+2025-10-22 12:56:14 - Stopping process 15676
+2025-10-22 12:56:14 - Send SIGINT 15676
+2025-10-22 12:56:14 - SIGINT to 15676 failed - Killing as fallback
+2025-10-22 12:56:14 - Finished teletrackcollector.exe
+2025-10-22 12:56:16 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-22 12:56:16 - Started 15692
+2025-10-22 13:40:46 - Stopping teletrackcollector.exe
+2025-10-22 13:40:46 - ProcessKill 15692
+2025-10-22 13:40:46 - Found child process: 15556 Name: conhost.exe
+2025-10-22 13:40:46 - Found child process: 1512 Name: node.exe
+2025-10-22 13:40:46 - Stopping process 15556
+2025-10-22 13:40:46 - Send SIGINT 15556
+2025-10-22 13:40:46 - SIGINT to 15556 failed - Killing as fallback
+2025-10-22 13:40:46 - Stopping process 1512
+2025-10-22 13:40:46 - Send SIGINT 1512
+2025-10-22 13:40:46 - SIGINT to 1512 failed - Killing as fallback
+2025-10-22 13:40:46 - Stopping process 15692
+2025-10-22 13:40:46 - Send SIGINT 15692
+2025-10-22 13:40:46 - SIGINT to 15692 failed - Killing as fallback
+2025-10-22 13:40:46 - Finished teletrackcollector.exe
+2025-10-22 13:40:47 - Starting C:\Program Files\nodejs\node.exe  --max_old_space_size=4096 "C:\Users\ctitest\Documents\TeleTrack Collector\node_modules\node-windows\lib\wrapper.js" --file "C:\Users\ctitest\Documents\TeleTrack Collector\collector.js" --scriptoptions= --log "TeleTrack Collector wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2025-10-22 13:40:47 - Started 6552
