@@ -11,9 +11,9 @@ console.log('🔧 Setting up TeleTrack database...');
 
 // Create tables
 try {
-  // Organizations table
+  // Organization table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS organizations (
+    CREATE TABLE IF NOT EXISTS Organization (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       apiKey TEXT NOT NULL,
@@ -22,9 +22,9 @@ try {
     )
   `);
 
-  // Collectors table
+  // Collector table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS collectors (
+    CREATE TABLE IF NOT EXISTS Collector (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       hostname TEXT NOT NULL,
@@ -37,7 +37,7 @@ try {
 
   // Call history table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS call_history (
+    CREATE TABLE IF NOT EXISTS CallHistory (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       uniqueId TEXT NOT NULL,
       organizationId TEXT NOT NULL,
@@ -61,23 +61,23 @@ try {
       phoneNumber TEXT,
       rawEvent TEXT,
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (organizationId) REFERENCES organizations (id),
-      FOREIGN KEY (collectorId) REFERENCES collectors (id)
+      FOREIGN KEY (organizationId) REFERENCES Organization (id),
+      FOREIGN KEY (collectorId) REFERENCES Collector (id)
     )
   `);
 
   // Create indexes for better performance
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_uniqueId ON call_history(uniqueId)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_timestamp ON call_history(timestamp)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_organization ON call_history(organizationId)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_source ON call_history(source)`);
-  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_destination ON call_history(destination)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_uniqueId ON CallHistory(uniqueId)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_timestamp ON CallHistory(timestamp)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_organization ON CallHistory(organizationId)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_source ON CallHistory(source)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_call_history_destination ON CallHistory(destination)`);
 
   console.log('✅ Database tables created successfully');
 
   // Insert default organization
   const insertOrg = db.prepare(`
-    INSERT OR REPLACE INTO organizations (id, name, apiKey) 
+    INSERT OR REPLACE INTO Organization (id, name, apiKey) 
     VALUES (?, ?, ?)
   `);
   

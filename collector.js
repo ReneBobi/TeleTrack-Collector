@@ -214,7 +214,7 @@ class TeleTrackCollector {
 
   async saveCallToPostgreSQL(callData) {
     const query = `
-      INSERT INTO call_history (
+      INSERT INTO CallHistory (
         unique_id, organization_id, collector_id, timestamp, status, source, destination,
         caller_name, direction, call_type, source_raw, dest_raw, duration, billable_seconds,
         disposition, last_app, context, destination_context, last_data, phone_number, raw_event
@@ -246,12 +246,12 @@ class TeleTrackCollector {
     ];
 
     await this.dbPool.query(query, values);
-    this.log("debug", `Saved call to PostgreSQL: ${callData.uniqueId}`);
+    this.log("debug", `💾 DB: ${callData.uniqueId}`);
   }
 
   saveCallToSQLite(callData) {
     const stmt = this.db.prepare(`
-      INSERT INTO call_history (
+      INSERT INTO CallHistory (
         uniqueId, organizationId, collectorId, timestamp, status, source, destination,
         callerName, direction, callType, sourceRaw, destRaw, duration, billableSeconds,
         disposition, lastApp, context, destinationContext, lastData, phoneNumber, rawEvent
@@ -282,7 +282,7 @@ class TeleTrackCollector {
       JSON.stringify(callData.rawEvent)
     );
     
-    this.log("debug", `Saved call to SQLite: ${callData.uniqueId}`);
+    this.log("debug", `💾 DB: ${callData.uniqueId}`);
   }
 
   // ========== STARTUP ==========
@@ -350,7 +350,7 @@ class TeleTrackCollector {
     for (const [k, v] of Object.entries(params)) msg += `${k}: ${v}\r\n`;
     msg += "\r\n";
     this.socket.write(msg);
-    this.log("debug", `Sent AMI action: ${action} ${JSON.stringify(params)}`);
+    this.log("debug", `AMI: ${action}`);
   }
 
   // ========== MESSAGE PARSING ==========
@@ -501,14 +501,19 @@ class TeleTrackCollector {
 
   // ========== EVENT HANDLER ==========
   handleAMIEvent(ev) {
-    this.log("debug", `AMI Event: ${ev.Event} ${JSON.stringify(ev)}`);
-    
     // Only process call-related events
     const callEvents = ['Newchannel', 'Hangup', 'Bridge', 'Dial', 'DialEnd', 'Cdr'];
     if (!callEvents.includes(ev.Event)) {
-      this.log("debug", `Skipping non-call event: ${ev.Event}`);
+      // Just log a simple skip message, no duplicate events
+      if (!this.lastSkippedEvent || this.lastSkippedEvent !== ev.Event) {
+        this.log("debug", `Skip: ${ev.Event}`);
+        this.lastSkippedEvent = ev.Event;
+      }
       return;
     }
+    
+    // Log actual call events with details
+    this.log("debug", `📞 Call Event: ${ev.Event} - ${ev.CallerIDNum || 'unknown'} → ${ev.Exten || ev.DestExten || 'unknown'}`);
     
     const clean = TeleTrackCollector.cleanEndpoint;
 
@@ -810,7 +815,7 @@ class TeleTrackCollector {
     this.log("debug", "Heartbeat sent");
   }
 
-  shutdown(signal) {
+  async shutdown(signal) {
     this.log("info", `Shutting down (${signal})...`);
     if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
     if (this.batchTimer) clearTimeout(this.batchTimer);

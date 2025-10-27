@@ -32,7 +32,7 @@
     "type": "postgresql",
     "host": "localhost",
     "port": 5432,
-    "database": "postgres",
+    "database": "teletrack",
     "username": "teletrack_admin",
     "password": "Solatar03$",
     "ssl": false,

@@ -57,7 +57,7 @@ app.post('/api/calls/ingest', (req, res) => {
     
     // Insert or update collector info
     db.run(`
-      INSERT OR REPLACE INTO collectors (name, hostname, ipAddress, version, lastSeen)
+      INSERT OR REPLACE INTO Collector (name, hostname, ipAddress, version, lastSeen)
       VALUES (?, ?, ?, ?, ?)
     `, [
       collectorInfo.name || 'unknown',
@@ -78,7 +78,7 @@ app.post('/api/calls/ingest', (req, res) => {
       
       // Insert call data
       db.run(`
-        INSERT INTO call_history (
+        INSERT INTO CallHistory (
           uniqueId, organizationId, collectorId, timestamp, status, source, destination,
           callerName, direction, callType, sourceRaw, destRaw, duration, billableSeconds,
           disposition, lastApp, context, destinationContext, lastData, phoneNumber, rawEvent
@@ -147,9 +147,9 @@ app.get('/api/calls', (req, res) => {
       c.name as collectorName,
       c.hostname as collectorHostname,
       o.name as organizationName
-    FROM call_history ch
-    LEFT JOIN collectors c ON ch.collectorId = c.id
-    LEFT JOIN organizations o ON ch.organizationId = o.id
+    FROM CallHistory ch
+    LEFT JOIN Collector c ON ch.collectorId = c.id
+    LEFT JOIN Organization o ON ch.organizationId = o.id
     ORDER BY ch.createdAt DESC
     LIMIT ? OFFSET ?
   `, [limit, offset], (err, rows) => {
@@ -180,7 +180,7 @@ app.get('/api/calls/stats', (req, res) => {
       COUNT(DISTINCT collectorId) as activeCollectors,
       AVG(duration) as avgDuration,
       SUM(billableSeconds) as totalBillableSeconds
-    FROM call_history
+    FROM CallHistory
   `, (err, rows) => {
     if (err) {
       console.error('Error retrieving stats:', err);

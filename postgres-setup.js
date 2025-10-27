@@ -41,9 +41,9 @@ async function setupDatabase() {
   const teletrackClient = await teletrackPool.connect();
 
   try {
-    // Create organizations table
+    // Create Organization table
     await teletrackClient.query(`
-      CREATE TABLE IF NOT EXISTS organizations (
+      CREATE TABLE IF NOT EXISTS Organization (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         apiKey TEXT NOT NULL,
@@ -52,9 +52,9 @@ async function setupDatabase() {
       )
     `);
 
-    // Create collectors table
+    // Create Collector table
     await teletrackClient.query(`
-      CREATE TABLE IF NOT EXISTS collectors (
+      CREATE TABLE IF NOT EXISTS Collector (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         hostname TEXT NOT NULL,
@@ -65,9 +65,9 @@ async function setupDatabase() {
       )
     `);
 
-    // Create call_history table
+    // Create CallHistory table
     await teletrackClient.query(`
-      CREATE TABLE IF NOT EXISTS call_history (
+      CREATE TABLE IF NOT EXISTS CallHistory (
         id SERIAL PRIMARY KEY,
         unique_id TEXT NOT NULL,
         organization_id TEXT NOT NULL,
@@ -91,24 +91,24 @@ async function setupDatabase() {
         phone_number TEXT,
         raw_event JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (organization_id) REFERENCES organizations (id),
-        FOREIGN KEY (collector_id) REFERENCES collectors (id)
+        FOREIGN KEY (organization_id) REFERENCES Organization (id),
+        FOREIGN KEY (collector_id) REFERENCES Collector (id)
       )
     `);
 
     // Create indexes for better performance
-    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_unique_id ON call_history(unique_id)');
-    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_timestamp ON call_history(timestamp)');
-    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_organization ON call_history(organization_id)');
-    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_source ON call_history(source)');
-    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_destination ON call_history(destination)');
-    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_created_at ON call_history(created_at)');
+    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_unique_id ON CallHistory(unique_id)');
+    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_timestamp ON CallHistory(timestamp)');
+    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_organization ON CallHistory(organization_id)');
+    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_source ON CallHistory(source)');
+    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_destination ON CallHistory(destination)');
+    await teletrackClient.query('CREATE INDEX IF NOT EXISTS idx_call_history_created_at ON CallHistory(created_at)');
 
     console.log('✅ Database tables created successfully');
 
     // Insert default organization
     await teletrackClient.query(`
-      INSERT INTO organizations (id, name, apiKey) 
+      INSERT INTO Organization (id, name, apiKey) 
       VALUES ($1, $2, $3)
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
