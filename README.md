@@ -190,6 +190,16 @@ All files are in `C:\Program Files\TeleTrack\`:
 2. Copy your private key to `certs\server.key`
 3. Restart Apache: `net stop TeleTrackApache && net start TeleTrackApache`
 
+## Updating TeleTrack
+
+To update an existing TeleTrack installation to the latest version, run this command in **PowerShell as Administrator**:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Program Files\TeleTrack\update-teletrack.ps1" -Force
+```
+
+This will automatically download and apply the latest update while preserving your configuration and data.
+
 ## Uninstall
 
 Run the uninstaller from Add/Remove Programs or `C:\Program Files\TeleTrack\unins000.exe`.
